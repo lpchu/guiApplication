@@ -11,6 +11,9 @@ import processing.core.PApplet;
 import java.util.*;
 
 
+/**
+ * LifeExpectancy application
+ */
 public class LifeExpectancy extends PApplet {
     private UnfoldingMap worldMap;
     private Map<String, Double> lifeExpByCountry;
