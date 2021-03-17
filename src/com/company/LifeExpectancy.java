@@ -12,7 +12,10 @@ import java.util.*;
 
 
 /**
- * LifeExpectancy application
+ * Generates an interactive map (UnfoldingMap library) that displays the life expectancy
+ * in various countries around the world using data from WHO (recorded in 2018):
+ *      Blue color indicates high life expectancy
+ *      Red color indicates low life expectancy
  */
 public class LifeExpectancy extends PApplet {
     private UnfoldingMap worldMap;
