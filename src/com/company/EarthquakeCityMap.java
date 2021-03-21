@@ -34,7 +34,7 @@ public class EarthquakeCityMap extends PApplet {
         size(850, 600, OPENGL);
 
         // set up map;
-        map = new UnfoldingMap(this, 200, 50, 600, 500, new OpenStreetMap.OpenStreetMapProvider());
+        map = new UnfoldingMap(this, 200, 50, 600, 500, new Google.GoogleTerrainProvider());
         map.zoomToLevel(2);
         MapUtils.createDefaultEventDispatcher(this, map); // make map interactive
 
@@ -48,9 +48,8 @@ public class EarthquakeCityMap extends PApplet {
 
     private List<Marker> createMarkers(List<PointFeature> features) {
         /*
-        Creates a list of markers (SimplePointMarker objects) from locations extracted
-        from a list of PointFeature, then style each marker according the
-        magnitude of each earthquake event:
+        Creates a list of markers (SimplePointMarker objects) from a list of PointFeature,
+        then style each marker according the magnitude of each earthquake event:
             Magnitude 5.0+ -> moderate -> big red dots
             Magnitude 4.0+ -> light -> medium yellow dots
             Magnitude <4.0 -> minor -> small blue dots
