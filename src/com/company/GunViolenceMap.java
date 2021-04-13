@@ -7,6 +7,7 @@ import de.fhpotsdam.unfolding.data.GeoJSONReader;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
+import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.OpenStreetMap;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
@@ -68,7 +69,7 @@ public class GunViolenceMap extends PApplet {
         size(1000, 700, OPENGL);
 
         // set up map
-        map = new UnfoldingMap(this, 50, 50, 700, 600, new OpenStreetMap.OpenStreetMapProvider());
+        map = new UnfoldingMap(this, 50, 50, 700, 600, new Google.GoogleMapProvider());
         map.zoomAndPanTo(4, new Location(31.79, -100.09)); // centered on USA
         MapUtils.createDefaultEventDispatcher(this, map); // make map interactive
 
