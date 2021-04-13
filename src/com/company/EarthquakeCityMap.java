@@ -15,7 +15,13 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Generates an interactive map (UnfoldingMap library) that displays earthquake events around the world;
+ * Generates an interactive map (UnfoldingMap library) that displays earthquake events
+ * (RSS feed from usgs) around the world;
+ * Features:
+ *      - Displays markers from cities around the world;
+ *      - Displays separate markers for earthquakes in land versus in the ocean;
+ *      - Size of the marker is proportional to the magnitude of the earthquake;
+ *      - Earthquakes within the past day are indicated with a cross;
  */
 public class EarthquakeCityMap extends PApplet {
     private UnfoldingMap map;
@@ -34,7 +40,7 @@ public class EarthquakeCityMap extends PApplet {
         size(850, 600, OPENGL);
 
         // set up map;
-        map = new UnfoldingMap(this, 200, 50, 600, 500, new Google.GoogleTerrainProvider());
+        map = new UnfoldingMap(this, 200, 50, 600, 500, new OpenStreetMap.OpenStreetMapProvider());
         map.zoomToLevel(2);
         MapUtils.createDefaultEventDispatcher(this, map); // make map interactive
 
@@ -58,7 +64,7 @@ public class EarthquakeCityMap extends PApplet {
         double THRESHOLD_LIGHT = 4.;
         List<Marker> markers = new ArrayList<>();
         for (PointFeature feature : features) {
-//            System.out.println(feature.properties); // print all properties of PointFeature
+            System.out.println(feature.properties); // print all properties of PointFeature
             Location loc = feature.getLocation();
             SimplePointMarker marker = new SimplePointMarker(loc, feature.properties);
             double magnitude = Double.parseDouble(marker.getProperty("magnitude").toString());

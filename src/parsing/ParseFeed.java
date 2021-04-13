@@ -1,8 +1,6 @@
 package parsing;
 
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 import de.fhpotsdam.unfolding.data.Feature;
@@ -13,7 +11,43 @@ import processing.core.PApplet;
 import processing.data.XML;
 
 public class ParseFeed {
+    /*
+     * This method is to parse a CSV file containing gun violence incidents downloaded from
+     * https://www.gunviolencearchive.org/
+     *
+     * @param p - PApplet being used
+     * @param fileName - file name or URL for data source
+     * @return List<PointFeature>
+     */
+    public static List<PointFeature> readGunViolenceDataFromCSV(PApplet p, String fileName) {
+        List<PointFeature> features = new ArrayList<>();
 
+        // read in rows from csv
+        String[] rows = p.loadStrings(fileName);
+        PointFeature point;
+        for (int i=1; i < rows.length; i++) { // skip header
+            String[] columns = rows[i].split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"); // split by comma not in quotation
+            // get location and create features
+            try {
+                double latitude = Double.parseDouble(columns[7]);
+                double longitude = Double.parseDouble(columns[8]);
+                point = new PointFeature(new Location(latitude, longitude));
+                features.add(point);
+
+                // add properties
+                point.addProperty("date", columns[1]); // date of crime
+                String year = columns[1].substring(columns[1].length()-5, columns[1].length()-1);
+                point.addProperty("year", year); // year of crime
+                point.addProperty("state", columns[2]); // state of crime
+                point.addProperty("county", columns[3]); // city or county of crime
+                point.addProperty("address", columns[4]); // address of crime
+                point.addProperty("nKilled", Integer.parseInt(columns[5])); // number of people killed
+                point.addProperty("nInjured", Integer.parseInt(columns[6])); // number of people injured
+            } catch (Exception ignored) {}
+        }
+        System.out.printf("Successfully read in %d rows from %s\n", features.size(), fileName);
+        return features;
+    }
 
     /*
      * This method is to parse a GeoRSS feed corresponding to earthquakes around
@@ -23,29 +57,28 @@ public class ParseFeed {
      * @param fileName - file name or URL for data source
      */
     public static List<PointFeature> parseEarthquake(PApplet p, String fileName) {
-        List<PointFeature> features = new ArrayList<PointFeature>();
+        List<PointFeature> features = new ArrayList<>();
 
         XML rss = p.loadXML(fileName);
         // Get all items
         XML[] itemXML = rss.getChildren("entry");
         PointFeature point;
 
-        for (int i = 0; i < itemXML.length; i++) {
+        for (XML xml : itemXML) {
 
             // get location and create feature
-            Location location = getLocationFromPoint(itemXML[i]);
+            Location location = getLocationFromPoint(xml);
 
             // if successful create PointFeature and add to list
-            if( location != null) {
+            if (location != null) {
                 point = new PointFeature(location);
                 features.add(point);
-            }
-            else {
+            } else {
                 continue;
             }
 
             // Sets title if existing
-            String titleStr = getStringVal(itemXML[i], "title");
+            String titleStr = getStringVal(xml, "title");
             if (titleStr != null) {
                 point.putProperty("title", titleStr);
                 // get magnitude from title
@@ -53,21 +86,21 @@ public class ParseFeed {
             }
 
             // Sets depth(elevation) if existing
-            float depthVal = getFloatVal(itemXML[i], "georss:elev");
+            float depthVal = getFloatVal(xml, "georss:elev");
 
             // NOT SURE ABOUT CHECKING ERR CONDITION BECAUSE 0 COULD BE VALID?
             // get one decimal place when converting to km
-            int interVal = (int)(depthVal/100);
-            depthVal = (float) interVal/10;
+            int interVal = (int) (depthVal / 100);
+            depthVal = (float) interVal / 10;
             point.putProperty("depth", Math.abs((depthVal)));
 
 
             // Sets age if existing
-            XML[] catXML = itemXML[i].getChildren("category");
-            for (int c = 0; c < catXML.length; c++) {
-                String label = catXML[c].getString("label");
+            XML[] catXML = xml.getChildren("category");
+            for (XML value : catXML) {
+                String label = value.getString("label");
                 if ("Age".equals(label)) {
-                    String ageStr = catXML[c].getString("term");
+                    String ageStr = value.getString("term");
                     point.putProperty("age", ageStr);
                 }
             }
@@ -95,8 +128,8 @@ public class ParseFeed {
         if (pointXML != null && pointXML.getContent() != null) {
             String pointStr = pointXML.getContent();
             String[] latLon = pointStr.split(" ");
-            float lat = Float.valueOf(latLon[0]);
-            float lon = Float.valueOf(latLon[1]);
+            float lat = Float.parseFloat(latLon[0]);
+            float lon = Float.parseFloat(latLon[1]);
 
             loc = new Location(lat, lon);
         }
@@ -139,7 +172,7 @@ public class ParseFeed {
      * @param fileName - file name or URL for data source
      */
     public static List<PointFeature> parseAirports(PApplet p, String fileName) {
-        List<PointFeature> features = new ArrayList<PointFeature>();
+        List<PointFeature> features = new ArrayList<>();
 
         String[] rows = p.loadStrings(fileName);
         for (String row : rows) {
@@ -198,7 +231,7 @@ public class ParseFeed {
      * @param fileName - file name or URL for data source
      */
     public static List<ShapeFeature> parseRoutes(PApplet p, String fileName) {
-        List<ShapeFeature> routes = new ArrayList<ShapeFeature>();
+        List<ShapeFeature> routes = new ArrayList<>();
 
         String[] rows = p.loadStrings(fileName);
 
@@ -244,7 +277,7 @@ public class ParseFeed {
      */
     public static HashMap<String, Float> loadLifeExpectancyFromCSV(PApplet p, String fileName) {
         // HashMap key: country ID and  data: lifeExp at birth
-        HashMap<String, Float> lifeExpMap = new HashMap<String, Float>();
+        HashMap<String, Float> lifeExpMap = new HashMap<>();
 
         // get lines of csv file
         String[] rows = p.loadStrings(fileName);
